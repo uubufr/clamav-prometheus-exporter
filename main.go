@@ -35,6 +35,8 @@ var (
 	address string
 	port    int
 	network string
+        listenaddress string
+        listenport int
 )
 
 func init() {
@@ -43,6 +45,8 @@ func init() {
 	flag.StringVar(&address, "clamav-address", "localhost", "ClamAV address to use")
 	flag.IntVar(&port, "clamav-port", 3310, "ClamAV port to use")
 	flag.StringVar(&network, "network", "tcp", "Network mode to use, typically tcp or unix (socket)")
+        flag.StringVar(&listenaddress, "listen-addr", "localhost", "bind address")
+        flag.IntVar(&listenport, "listen-port", 9810, "port to use")
 	flag.Parse()
 }
 
@@ -53,6 +57,8 @@ func main() {
 		address = fmt.Sprintf("%s:%d", address, port)
 	}
 
+        listenaddress = fmt.Sprintf("%s:%d", listenaddress, listenport)
+
 	client := clamav.New(address, network)
 	coll := collector.New(*client)
 	prometheus.MustRegister(coll)
@@ -61,7 +67,7 @@ func main() {
 	router.Handle("/metrics", promhttp.Handler())
 
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%v", 9810),
+		Addr:         fmt.Sprintf(":%v", listenaddress),
 		Handler:      router,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -86,9 +92,9 @@ func main() {
 		close(done)
 	}()
 
-	log.Info("Server is ready to handle requests at :", 9810)
+	log.Info("Server is ready to handle requests at :", listenport)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("Could not listen on %d: %v\n", 9810, err)
+		log.Fatalf("Could not listen on %d: %v\n", listenport, err)
 	}
 
 	<-done
