@@ -3,6 +3,9 @@
 - Added option --listen-addr allow specific listen address
 - Added option --listen-port allow specific listen port
 
+Example: clamav-prometheus-exporter -listen-addr [::1] -listen-port 30300
+
+
 
 <p align="left"><img src="https://storage.googleapis.com/gopherizeme.appspot.com/gophers/9e5f19f595edf1bb1a51cb49e4eac9f935c1ec18.png" alt="Logo" height="200"></p>
 
