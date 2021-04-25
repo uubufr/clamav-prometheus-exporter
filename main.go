@@ -57,8 +57,6 @@ func main() {
 		address = fmt.Sprintf("%s:%d", address, port)
 	}
 
-        listenaddress = fmt.Sprintf("%s:%d", listenaddress, listenport)
-
 	client := clamav.New(address, network)
 	coll := collector.New(*client)
 	prometheus.MustRegister(coll)
@@ -67,7 +65,7 @@ func main() {
 	router.Handle("/metrics", promhttp.Handler())
 
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%v", listenaddress),
+		Addr:         fmt.Sprintf("%s:%d", listenaddress, listenport),
 		Handler:      router,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -94,7 +92,7 @@ func main() {
 
 	log.Info("Server is ready to handle requests at :", listenport)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("Could not listen on %d: %v\n", listenport, err)
+                log.Fatalf("Could not listen on %d: %v\n", listenport, err)
 	}
 
 	<-done
